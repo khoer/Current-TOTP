@@ -7,7 +7,9 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigInteger;
 import java.util.TimeZone;
-/* This code can be used for get TOTP current time with up to 18-digit TOTP. 
+/** 
+ *This code can be used for get TOTP current time with up to 18-digits TOTP. 
+ * (10-digits must be enough)
  * Reference: https://tools.ietf.org/html/rfc6238 
  */
 public class curTOTP {
@@ -45,12 +47,14 @@ public class curTOTP {
         while (steps.length() < 16) steps = "0" + steps;
         return steps;
     }
-                                             // 0 1  2   3    4     5      6       7        8         9          10
-    private static final long[] DIGITS_POWER = {1,10,100,1000,10000,100000,1000000,10000000,100000000,1000000000,10000000000L,
-      //11            12             13              14               15                16                 17
-    	100000000000L,1000000000000L,10000000000000L,100000000000000L,1000000000000000L,10000000000000000L,100000000000000000L,
-      //18	
-    	1000000000000000000L
+                                             // 0 1  2   3    4     5     
+    private static final long[] DIGITS_POWER = {1,10,100,1000,10000,100000,
+      //6       7        8         9          10           11
+    	1000000,10000000,100000000,1000000000,10000000000L,100000000000L,
+      //12             13              14               15                
+    	1000000000000L,10000000000000L,100000000000000L,1000000000000000L,
+      //16                 17	               18
+    	10000000000000000L,100000000000000000L,1000000000000000000L
     };
     
     public static String generateTOTP(String key, String returnDigits){
@@ -75,8 +79,10 @@ public class curTOTP {
         byte[] k = key.getBytes();//hexStr2Bytes(key);
         byte[] hash = hmac_sha(crypto, k, msg);
         int offset = hash[hash.length - 1] & 0xf;
-        int binary = ((hash[offset] & 0x7f) << 24) | ((hash[offset + 1] & 0xff) << 16) |
-            ((hash[offset + 2] & 0xff) << 8) | (hash[offset + 3] & 0xff);
+        int binary = ((hash[offset] & 0x7f) << 24) |
+            ((hash[offset + 1] & 0xff) << 16) |
+            ((hash[offset + 2] & 0xff) << 8) |
+            (hash[offset + 3] & 0xff);
         long otp = binary % DIGITS_POWER[codeDigits];
         result = Long.toString(otp);
         while (result.length() < codeDigits) {
@@ -92,21 +98,25 @@ public class curTOTP {
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         df.setTimeZone(TimeZone.getTimeZone("UTC"));
 	try {
-            System.out.println("+---------------+-----------------------+" + "------------------+----------+--------+");
-            System.out.println("|  Time(sec)    |   Time (UTC format)   " + "| Value of T(Hex)  |   TOTP   | Mode   |");
-            System.out.println("+---------------+-----------------------+" + "------------------+----------+--------+");
+            System.out.println("+---------------+-----------------------+" +
+            	"------------------+----------+--------+");
+            System.out.println("|  Time(sec)    |   Time (UTC format)   " +
+            	"| Value of T(Hex)  |   TOTP   | Mode   |");
+            System.out.println("+---------------+-----------------------+" +
+            	"------------------+----------+--------+");
             String fmtTime = String.format("%1$-11s", testTime);
             String utcTime = df.format(new Date(testTime*1000));
             String gt1 = generateTOTP(seed, "10", "HmacSHA1");
             String gt256 = generateTOTP(seed32, "10", "HmacSHA256");
             String gt512 = generateTOTP(seed64, "10", "HmacSHA512");
-            System.out.print("|  " + fmtTime + "  |  " + utcTime + "  | " + step() + " |");
-            System.out.println(gt1 + "| SHA1   |");
-            System.out.print("|  " + fmtTime + "  |  " + utcTime + "  | " + step() + " |");
-            System.out.println(gt256 + "| SHA256 |");
-            System.out.print("|  " + fmtTime + "  |  " + utcTime + "  | " + step() + " |");
-            System.out.println(gt512 + "| SHA512 |");
-            System.out.println("+---------------+-----------------------+" + "------------------+----------+--------+");
+            System.out.println("|  " + fmtTime + "  |  " + utcTime + "  | " +
+            	step() + " |" + gt1 + "| SHA1   |");
+            System.out.println("|  " + fmtTime + "  |  " + utcTime + "  | " +
+            	step() + " |" + gt256 + "| SHA256 |");
+            System.out.println("|  " + fmtTime + "  |  " + utcTime + "  | " +
+            	step() + " |" + gt512 + "| SHA512 |");
+            System.out.println("+---------------+-----------------------+" +
+            	"------------------+----------+--------+");
         }catch (final Exception e){
             System.out.println("Error : " + e);
         }
