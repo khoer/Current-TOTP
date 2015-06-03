@@ -36,13 +36,13 @@ public class curTOTP {
         return ret;
     }
     
-    private static final long testTime = System.currentTimeMillis()/1000;
+    private static final long TEST_TIME = System.currentTimeMillis()/1000;
         
     private static String step(){
         long T0 = 0;
         long X = 30;
         String steps = "0";
-        long T = (testTime - T0)/X;
+        long T = (TEST_TIME - T0)/X;
         steps = Long.toHexString(T).toUpperCase();
         while (steps.length() < 16) steps = "0" + steps;
         return steps;
@@ -104,8 +104,8 @@ public class curTOTP {
             	"| Value of T(Hex)  |   TOTP   | Mode   |");
             System.out.println("+---------------+-----------------------+" +
             	"------------------+----------+--------+");
-            String fmtTime = String.format("%1$-11s", testTime);
-            String utcTime = df.format(new Date(testTime*1000));
+            String fmtTime = String.format("%1$-11s", TEST_TIME);
+            String utcTime = df.format(new Date(TEST_TIME*1000));
             String gt1 = generateTOTP(seed, "10", "HmacSHA1");
             String gt256 = generateTOTP(seed32, "10", "HmacSHA256");
             String gt512 = generateTOTP(seed64, "10", "HmacSHA512");
