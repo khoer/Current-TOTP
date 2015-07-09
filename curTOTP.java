@@ -1,19 +1,19 @@
+package creation.sahif;
+
 import java.lang.reflect.UndeclaredThrowableException;
 import java.security.GeneralSecurityException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.math.BigInteger;
-import java.util.TimeZone;
+
 /** 
  *This code can be used for get TOTP current time with up to 18-digits TOTP. 
- * (10-digits must be enough)
- * Reference: https://tools.ietf.org/html/rfc6238 
+ *(10-digits must be enough)
+ *Reference: https://tools.ietf.org/html/rfc6238 
  */
 public class curTOTP {
-    private curTOTP() {}
+    public curTOTP() {
+    }
     
     private static byte[] hmac_sha(String crypto, byte[] keyBytes, byte[] text){
         try {
@@ -36,9 +36,9 @@ public class curTOTP {
         return ret;
     }
     
-    private static final long TEST_TIME = System.currentTimeMillis()/1000;
+    static final long TEST_TIME = System.currentTimeMillis()/1000;
         
-    private static String step(){
+    static String step(){
         long T0 = 0;
         long X = 30;
         String steps = "0";
@@ -71,7 +71,7 @@ public class curTOTP {
     
     public static String generateTOTP(String key, String returnDigits, String crypto){
         int codeDigits = Integer.decode(returnDigits).intValue();
-	String result = null;
+        String result = null;
         String time = step();
         while (time.length() < 16 )
             time = "0" + time;
@@ -89,36 +89,5 @@ public class curTOTP {
             result = "0" + result;
         }
         return result;
-    }
-       
-    public static void main(String[] args) {
-        String seed = "SomeToken";
-        String seed32 = "SomeToken";
-        String seed64 = "SomeToken";
-        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        df.setTimeZone(TimeZone.getTimeZone("UTC"));
-	try {
-            System.out.println("+---------------+-----------------------+" +
-            	"------------------+----------+--------+");
-            System.out.println("|  Time(sec)    |   Time (UTC format)   " +
-            	"| Value of T(Hex)  |   TOTP   | Mode   |");
-            System.out.println("+---------------+-----------------------+" +
-            	"------------------+----------+--------+");
-            String fmtTime = String.format("%1$-11s", TEST_TIME);
-            String utcTime = df.format(new Date(TEST_TIME*1000));
-            String gt1 = generateTOTP(seed, "10", "HmacSHA1");
-            String gt256 = generateTOTP(seed32, "10", "HmacSHA256");
-            String gt512 = generateTOTP(seed64, "10", "HmacSHA512");
-            System.out.println("|  " + fmtTime + "  |  " + utcTime + "  | " +
-            	step() + " |" + gt1 + "| SHA1   |");
-            System.out.println("|  " + fmtTime + "  |  " + utcTime + "  | " +
-            	step() + " |" + gt256 + "| SHA256 |");
-            System.out.println("|  " + fmtTime + "  |  " + utcTime + "  | " +
-            	step() + " |" + gt512 + "| SHA512 |");
-            System.out.println("+---------------+-----------------------+" +
-            	"------------------+----------+--------+");
-        }catch (final Exception e){
-            System.out.println("Error : " + e);
-        }
     }
 }
